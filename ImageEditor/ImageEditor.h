@@ -20,6 +20,8 @@ private:
 	unsigned int sp;
 	Pixel*** matrix;
 
+	//komentar
+
 };
 
 #endif//_IMAGE_H
