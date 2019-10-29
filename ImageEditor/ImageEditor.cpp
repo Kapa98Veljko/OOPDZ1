@@ -10,6 +10,10 @@ ImageEditor::ImageEditor()
 	this->height = 0;
 	this->width = 0;
 	this->sp = 0;
+	this->isNamed = false;
+	this->R = 0;
+	this->B = 0;
+	this->G = 0;
 }
 
 bool ImageEditor::loadImage(unsigned char* image)
@@ -73,7 +77,7 @@ bool ImageEditor::loadImage(unsigned char* image)
 
 
 
-	for (unsigned int i = height - 1; i >= 0; i--)
+	for( int i = height - 1; i > 0; i--)
 	{
 		matrix[i] = new Pixel*;
 		for (unsigned int j = 0; j < width; j++)
@@ -92,12 +96,7 @@ bool ImageEditor::loadImage(unsigned char* image)
 
 
 
-
 }
-
-
-
-
 //samo ime kaze
 unsigned int ImageEditor::FindPosition(unsigned int sp)
 {
@@ -111,6 +110,9 @@ unsigned int ImageEditor::FindPosition(unsigned int sp)
 unsigned char* ImageEditor::saveImage()
 {
 	unsigned char* image;
+
+	//dodaj memoriju za sliku
+
 	this->sp = 2;
 	//sada je potrebno spakovati sliku 
 	for (unsigned int i = 0; i < 2; i++)
@@ -140,3 +142,52 @@ unsigned char* ImageEditor::saveImage()
 
 
 	return image;
+}
+
+
+
+
+
+
+//CRTANJE PO SLICI
+void ImageEditor::setActiveColor(string hex)
+{
+	bool isFormated = false;
+	if (hex[0] == '#') {
+		for (int i = 0; i < 8; i++)
+		{
+			
+			if ((hex[i] >= '1' && hex[i] <= '10')|| (hex[i] >='A' && hex[i] <= 'F'))
+			{
+				isFormated = true;
+			}
+			else
+			{
+				isFormated = false;
+				//onemoguciti crtanje po slici i popravti kako treba da radi!!!
+			}
+		}
+		
+		
+		this->R = FindValue(hex[1],hex[2]);
+		this->B = FindValue(hex[3],hex[4]);
+		this->G = FindValue(hex[5],hex[6]);
+	}
+}
+
+void ImageEditor::fillRect(int x, int y, int w, int h)
+{
+}
+
+void ImageEditor::eraseRect(int x, int y, int w, int h)
+{
+}
+
+int ImageEditor::FindValue(char a, char b)
+{
+	int c = 0;
+	for(int i=2;i<2;i++)
+	{
+
+	}
+}

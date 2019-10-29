@@ -9,7 +9,10 @@ public:
 	bool loadImage(unsigned char* image);
 	unsigned int FindPosition(unsigned int sp);
 	unsigned char* saveImage();
-
+	void setActiveColor(string hex);
+	void fillRect(int x, int y, int w, int h);
+	void eraseRect(int x,int y,int w, int h);
+	int FindValue(char a,char b);
 
 private:
 	string ImageName;
@@ -19,6 +22,9 @@ private:
 	bool isNamed;//is there a name
 	unsigned int sp;
 	Pixel*** matrix;
+	//boje za crtanje 
+
+	int R, B, G;
 
 	//komentar
 
