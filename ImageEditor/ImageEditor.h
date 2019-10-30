@@ -1,5 +1,6 @@
 #ifndef _IMAGE_H
 #define _IMAGE_H
+#include"Layer.h"
 #include "Pixel.h"
 #include<string>
 using namespace std;
@@ -8,9 +9,8 @@ public:
 	ImageEditor();
 	bool loadImage(unsigned char* image);
 	unsigned int FindPosition(unsigned int sp);
-	int fromHextoDec(int i);
+	int fillBlanks(int i,unsigned char* image);
 	unsigned char* saveImage();
-	int FindValue(char a,char b);
 	//Slojevi slike
 	//void addLayer();
 	//void deleteLayer();
@@ -34,9 +34,11 @@ private:
 	unsigned int height;//visina
 	unsigned int width;//sirina
 	bool isNamed;//is there a name
-	unsigned int sp;
-	Pixel*** matrix;
+	unsigned int sp;//mozda i ne treba ovde
+	Pixel*** original;
+	Pixel*** matrix; 
     int R, B, G;//boje za crtanje
+	Layer* glava;
 
 };
 

@@ -6,7 +6,7 @@ using namespace std;
 
 ImageEditor::ImageEditor()
 {
-	this->matrix = new Pixel**;//ISPRAVI AKO TREBA!!!!!!!!!!!
+	this->ImageName = "";
 	this->height = 0;
 	this->width = 0;
 	this->sp = 0;
@@ -14,10 +14,14 @@ ImageEditor::ImageEditor()
 	this->R = 0;
 	this->B = 0;
 	this->G = 0;
+	this->glava = nullptr;
+	this->original = nullptr;
+	this->matrix = nullptr;
 }
 
 bool ImageEditor::loadImage(unsigned char* image)
 {
+	int size = 0;
 	//PROVERENO
 	//loading format
 	if (image[this->sp] == 'b' || image[this->sp] == 'B') {
@@ -28,8 +32,9 @@ bool ImageEditor::loadImage(unsigned char* image)
 	}
 
 	if (image[this->sp] == 'm' || image[this->sp] == 'M') {
-		this->ImageFormat[this->sp++] = 'M';
+		this->ImageFormat[this->sp++] = 'M'; 
 	}
+
 	else {
 		return false;
 	}
@@ -37,102 +42,127 @@ bool ImageEditor::loadImage(unsigned char* image)
 	//loading name if there is any
 	if (image[this->sp] == '=')
 	{
+		
 		this->isNamed = true;
 		while (image[this->sp] != '=')
 		{
-			this->ImageName += image[this->sp++];
+			this->ImageName += image[this->sp++]; 
+			
 		}
-		this->sp++;//za prelazak preko jednako
+
+	this->sp++;//za prelazak preko jednako
 	}
     //ili ima ili nema imena svakako trazi poziciju
 	else if (!this->isNamed || this->sp % 4 != 0)
 	{
-		this->sp = FindPosition(this->sp);
+		this->sp = FindPosition(this->sp); 
 	}
    //Ucitavanje sirine i visine
-	this->width = FromHextoDec(this->sp);
-	this->height =FromHextoDec(this->sp);
-
-	this->sp++;
+	this->width = (int)image[this->sp++] + ((int)image[this->sp++]) * 256 + ((int)image[this->sp++]) * 256 * 256 + ((int)image[this->sp++]) * 256 * 256 * 256;
+	this->height= (int)image[this->sp++] + ((int)image[this->sp++]) * 256 + ((int)image[this->sp++]) * 256 * 256 + ((int)image[this->sp++]) * 256 * 256 * 256;
+	//visina i sirina ucitane i postavljen sp na prvu poziciju nakon njih
+	//nalazi deljivu sa cetiri ako nije na njoj
+	
 	this->sp = FindPosition(this->sp);
+	
 
-	for( int i = height - 1; i > 0; i--)
+	//sada bi trebalo da se doda odma u sloj i da se postavi na aktivan i da se podesi neka neprovidnost TO MOZDA I NE TREBA!!!!!!!! sloj
+	for (int i = height - 1; i > 0; i--)
 	{
+		original[i] = new Pixel*;
 		matrix[i] = new Pixel*;
 		for (unsigned int j = 0; j < width; j++)
 		{   //da li je potrebna dodatna konverzija
+			original[i][j] = new Pixel;
 			matrix[i][j] = new Pixel;
+			original[i][j]->setRed(image[this->sp]);
 			matrix[i][j]->setRed(image[this->sp++]);
+			original[i][j]->setGreen(image[this->sp]);
 			matrix[i][j]->setGreen(image[this->sp++]);
+			original[i][j]->setBlue(image[this->sp]);
 			matrix[i][j]->setBlue(image[this->sp++]);
 		}
+		//treba da se prazna mesta ako postoje
 		this->sp = FindPosition(this->sp);
+		
 	}//mislim da je ovo kraj treba proveriti sa nekim
 
+	//sad imam sve matrice ovu matrix treba ubaciti u listu
+	if(this->glava!=nullptr)
+		{
 
+		}
+	
 	return true;
-
-
-
-
 }
-//samo ime kaze
+//Nalazi poziciju deljivu sa cetiri i vraca njen indeks gde sp treba da bude
 unsigned int ImageEditor::FindPosition(unsigned int sp)
-{
+{  //vraca na mesto koje je deljivo sa 4
 	while (sp % 4)
 	{
 		sp++;
 	}
 	return sp;
 }
-int ImageEditor::fromHextoDec(int i)
+
+int ImageEditor::fillBlanks(int i,unsigned char* image)
 {
-	int c = 0;
-	for(int i=0;i<4;i++)
+	while (i % 4) 
 	{
-		c|=this->image[this->sp]
+		image[i] = '0';
+		i++;
 	}
+	return i;
 }
-//saveImage
-unsigned char* ImageEditor::saveImage()
-{
-	unsigned char* image;
 
-	//dodaj memoriju za sliku
 
-	this->sp = 2;
-	//sada je potrebno spakovati sliku 
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		image[i] = this->ImageFormat[i];
+	//saveImage
+	unsigned char* ImageEditor::saveImage()
+	{   
+		
+		int size = 8 + this->width * this->height;//format,visina,sirina,i broj piksela
+		int k = 2;
+		if (this->isNamed) { k += 2 + this->ImageName.length(); }
+		k=;
+		size += k;
+		unsigned char* image = new unsigned char[size];
 
-	}
-
-	if (this->isNamed)
-	{
-		image[this->sp++] = '=';
-		for (unsigned int i = 0; i < this->ImageName.length(); i++)
+		image[0] = 'B';
+		image[1] = 'M';
+		int sp = 2;
+		if (this->isNamed)
 		{
-			image[this->sp++] = ImageName[i];
+			image[2] = '=';
+			for (int i = 3; i < 3 + k; i++)
+			{
+				sp++;
+				image[i] = this->ImageName[i];
+			}
+			image[3 + k] = '='; k += 4; sp++;//sp mi prati poslednji popunjeni indeks
 		}
-		image[this->sp++] = '=';
-	}
-	else
-	{
-		this->sp = FindPosition(this->sp);
+		sp++;//prvi ne popunjeni
+		sp=fillBlanks(sp, image);
+		
+		//sada treba popuniti visinu i sirinu
+		
+		int w = this->width / 256;
+		int h = this->height / 256;
+
+		for(int i=0;i<4;i++)
+		{
+			image[sp] = (unsigned char)w;
+			image[sp + 4] = (unsigned char)h;
+			w /=  256;
+			h /= 256;
+			sp++;
+		}
+		sp = fillBlanks(sp, image);
+	
+	
+		return image;
 	}
 
-	//potrebno je vratiti sirinu i visinu u isto formatu
-return image;
-}
-int ImageEditor::FindValue(char a, char b)
-{
-	int c = 0;
-	for (int i = 2; i < 2; i++)
-	{
 
-	}
-}
 //Manipulacija slikom
 /*void ImageEditor::addLayer()
 {
