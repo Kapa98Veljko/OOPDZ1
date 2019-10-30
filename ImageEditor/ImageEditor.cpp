@@ -1,12 +1,12 @@
 #include "ImageEditor.h"
 #include "Pixel.h"
 #include<iostream>
-using namespace std;
 #include<string>
+using namespace std;
 
 ImageEditor::ImageEditor()
 {
-	this->matrix = new Pixel**;
+	this->matrix = new Pixel**;//ISPRAVI AKO TREBA!!!!!!!!!!!
 	this->height = 0;
 	this->width = 0;
 	this->sp = 0;
@@ -18,7 +18,7 @@ ImageEditor::ImageEditor()
 
 bool ImageEditor::loadImage(unsigned char* image)
 {
-	//is this done properly
+	//PROVERENO
 	//loading format
 	if (image[this->sp] == 'b' || image[this->sp] == 'B') {
 		this->ImageFormat[this->sp++] = 'B';
@@ -33,9 +33,7 @@ bool ImageEditor::loadImage(unsigned char* image)
 	else {
 		return false;
 	}
-
-
-
+	//PROVERENO
 	//loading name if there is any
 	if (image[this->sp] == '=')
 	{
@@ -44,38 +42,19 @@ bool ImageEditor::loadImage(unsigned char* image)
 		{
 			this->ImageName += image[this->sp++];
 		}
-		this->sp++;
+		this->sp++;//za prelazak preko jednako
 	}
-
-	//if there is no name find the proper position 
-	else if (!isNamed || this->sp % 4 != 0)
+    //ili ima ili nema imena svakako trazi poziciju
+	else if (!this->isNamed || this->sp % 4 != 0)
 	{
 		this->sp = FindPosition(this->sp);
 	}
-
-
-	//loading image height and width
-
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		this->width |= image[this->sp++] << i * 4;
-
-	}
-
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		this->height |= image[this->sp++] << i * 4;
-
-	}
-
+   //Ucitavanje sirine i visine
+	this->width = FromHextoDec(this->sp);
+	this->height =FromHextoDec(this->sp);
 
 	this->sp++;
 	this->sp = FindPosition(this->sp);
-
-
-
-
-
 
 	for( int i = height - 1; i > 0; i--)
 	{
@@ -105,6 +84,14 @@ unsigned int ImageEditor::FindPosition(unsigned int sp)
 		sp++;
 	}
 	return sp;
+}
+int ImageEditor::fromHextoDec(int i)
+{
+	int c = 0;
+	for(int i=0;i<4;i++)
+	{
+		c|=this->image[this->sp]
+	}
 }
 //saveImage
 unsigned char* ImageEditor::saveImage()
@@ -136,28 +123,61 @@ unsigned char* ImageEditor::saveImage()
 	}
 
 	//potrebno je vratiti sirinu i visinu u isto formatu
+return image;
+}
+int ImageEditor::FindValue(char a, char b)
+{
+	int c = 0;
+	for (int i = 2; i < 2; i++)
+	{
 
-
-
-
-
-	return image;
+	}
+}
+//Manipulacija slikom
+/*void ImageEditor::addLayer()
+{
 }
 
+void ImageEditor::deleteLayer()
+{
+}
 
+void ImageEditor::selectLayer(int i)
+{
+}
 
+void ImageEditor::invertColors()
+{
+}
 
+void ImageEditor::toGrayScale()
+{
+}
 
+void ImageEditor::blur(int size)
+{
+}
 
-//CRTANJE PO SLICI
-void ImageEditor::setActiveColor(string hex)
+void ImageEditor::flipHorizontal()
+{
+}
+
+void ImageEditor::flipVertical()
+{
+}
+
+void ImageEditor::crop(int x, int y, int w, int h)
+{
+}*/
+//Crtanje po slici
+/*void ImageEditor::setActiveColor(string hex)
 {
 	bool isFormated = false;
 	if (hex[0] == '#') {
 		for (int i = 0; i < 8; i++)
 		{
-			
-			if ((hex[i] >= '1' && hex[i] <= '10')|| (hex[i] >='A' && hex[i] <= 'F'))
+
+			if ((hex[i] >= '1' && hex[i] <= '10') || (hex[i] >= 'A' && hex[i] <= 'F'))
 			{
 				isFormated = true;
 			}
@@ -167,11 +187,11 @@ void ImageEditor::setActiveColor(string hex)
 				//onemoguciti crtanje po slici i popravti kako treba da radi!!!
 			}
 		}
-		
-		
-		this->R = FindValue(hex[1],hex[2]);
-		this->B = FindValue(hex[3],hex[4]);
-		this->G = FindValue(hex[5],hex[6]);
+
+
+		this->R = FindValue(hex[1], hex[2]);
+		this->B = FindValue(hex[3], hex[4]);
+		this->G = FindValue(hex[5], hex[6]);
 	}
 }
 
@@ -181,13 +201,4 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 
 void ImageEditor::eraseRect(int x, int y, int w, int h)
 {
-}
-
-int ImageEditor::FindValue(char a, char b)
-{
-	int c = 0;
-	for(int i=2;i<2;i++)
-	{
-
-	}
-}
+}*/

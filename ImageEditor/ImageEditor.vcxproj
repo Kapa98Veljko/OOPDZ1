@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageEditor.cpp" />
+    <ClCompile Include="Layer.cpp" />
     <ClCompile Include="Pixel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageEditor.h" />
+    <ClInclude Include="Layer.h" />
     <ClInclude Include="Pixel.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

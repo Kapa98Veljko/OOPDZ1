@@ -8,12 +8,26 @@ public:
 	ImageEditor();
 	bool loadImage(unsigned char* image);
 	unsigned int FindPosition(unsigned int sp);
+	int fromHextoDec(int i);
 	unsigned char* saveImage();
-	void setActiveColor(string hex);
-	void fillRect(int x, int y, int w, int h);
-	void eraseRect(int x,int y,int w, int h);
 	int FindValue(char a,char b);
-
+	//Slojevi slike
+	//void addLayer();
+	//void deleteLayer();
+	//void selectLayer(int i);
+	//void setLayerOpacity(int);//STA ZNACI SAMO OVO INT U ZAGRADI!!!!!!!!!!!!!
+	//Manipulacijom slike
+	//void invertColors();
+	//void toGrayScale();
+	//void blur(int size);
+	//void flipHorizontal();
+	//void flipVertical();
+	//void crop(int x, int y, int w, int h);
+	//Crtanje po slici
+	//void setActiveColor(string hex);
+	//void fillRect(int x, int y, int w, int h);
+	//void eraseRect(int x, int y, int w, int h);
+	
 private:
 	string ImageName;
 	string ImageFormat;
@@ -22,11 +36,7 @@ private:
 	bool isNamed;//is there a name
 	unsigned int sp;
 	Pixel*** matrix;
-	//boje za crtanje 
-
-	int R, B, G;
-
-	//komentar
+    int R, B, G;//boje za crtanje
 
 };
 
