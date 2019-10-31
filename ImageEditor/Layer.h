@@ -10,8 +10,8 @@ public:
 	bool getActivity();//vraca da li je izabrani sloj aktivan
 	void setNext(Layer * sled);//za podesavanje pokazivaca next
 	Layer* getNext();//vraca next
-	void setLayer(Pixel*** newLayer);//za dodavanje novog sloja
-	Pixel*** getLayer();//vraca sloj koji sam izabrao
+	void setLayer(Pixel*** newLayer);//za dodavanje novog sloja ali mi pre toga fali da kreiram praznu matricu 
+	Pixel*** getLayer();//vraca ptptp odnosnu sliku koja je u listi n
 private:
 	//ono sto mi je potrebno za listu
 	Pixel*** layer;//sloj

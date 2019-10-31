@@ -10,9 +10,10 @@ public:
 	bool loadImage(unsigned char* image);
 	unsigned int FindPosition(unsigned int sp);
 	int fillBlanks(int i,unsigned char* image);
+	void packTheRest(Layer* glava,int i,unsigned char* image);
 	unsigned char* saveImage();
 	//Slojevi slike
-	//void addLayer();
+	void addLayer();
 	//void deleteLayer();
 	//void selectLayer(int i);
 	//void setLayerOpacity(int);//STA ZNACI SAMO OVO INT U ZAGRADI!!!!!!!!!!!!!
@@ -36,9 +37,12 @@ private:
 	bool isNamed;//is there a name
 	unsigned int sp;//mozda i ne treba ovde
 	Pixel*** original;
-	Pixel*** matrix; 
     int R, B, G;//boje za crtanje
 	Layer* glava;
+	Layer* active;//Za laksi pristup aktivnom
+	Layer* sledeci;
+	Layer* prethodni;
+
 
 };
 

@@ -10,7 +10,7 @@ Layer::Layer()
 	this->activity = false;
 	this->layerOpacity = 100;
 }
-
+//Samo za aktivni sloj slike magarce
 void Layer::setOpacity(int i)
 {
 	this->layerOpacity = i;

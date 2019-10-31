@@ -1,5 +1,6 @@
 #include "ImageEditor.h"
 #include "Pixel.h"
+#include"Layer.h"
 #include<iostream>
 #include<string>
 using namespace std;
@@ -15,8 +16,10 @@ ImageEditor::ImageEditor()
 	this->B = 0;
 	this->G = 0;
 	this->glava = nullptr;
-	this->original = nullptr;
-	this->matrix = nullptr;
+	this->original = nullptr;//ovde se cuva ucitana slike
+	this->active = nullptr;//cuvainformacije o aktivnom 
+	this->sledeci = nullptr;//za brisanje slike
+	this->prethodni = nullptr;//prati prethodni pre aktivnog
 }
 
 bool ImageEditor::loadImage(unsigned char* image)
@@ -65,22 +68,23 @@ bool ImageEditor::loadImage(unsigned char* image)
 	
 	this->sp = FindPosition(this->sp);
 	
-
-	//sada bi trebalo da se doda odma u sloj i da se postavi na aktivan i da se podesi neka neprovidnost TO MOZDA I NE TREBA!!!!!!!! sloj
+	Pixel*** matrix =new Pixel**;//trenutna kopija
+	
+	Layer*** actv, prethodni, sled;
 	for (int i = height - 1; i > 0; i--)
 	{
 		this->original[i] = new Pixel*;
-		this->matrix[i] = new Pixel*;
+		matrix[i] = new Pixel*;
 		for (unsigned int j = 0; j < width; j++)
 		{   //da li je potrebna dodatna konverzija
 			this->original[i][j] = new Pixel;
-			this->matrix[i][j] = new Pixel;
+			matrix[i][j] = new Pixel;
 			this->original[i][j]->setRed(image[this->sp]);
-			this->matrix[i][j]->setRed(image[this->sp++]);
+			matrix[i][j]->setRed(image[this->sp++]);
 			this->original[i][j]->setGreen(image[this->sp]);
-			this->matrix[i][j]->setGreen(image[this->sp++]);
+			matrix[i][j]->setGreen(image[this->sp++]);
 			this->original[i][j]->setBlue(image[this->sp]);
-			this->matrix[i][j]->setBlue(image[this->sp++]);
+			matrix[i][j]->setBlue(image[this->sp++]);
 		}
 		//treba da se prekoce prazna mesta ako postoje
 		this->sp = FindPosition(this->sp);
@@ -90,8 +94,8 @@ bool ImageEditor::loadImage(unsigned char* image)
 	//sad imam sve matrice ovu matrix treba ubaciti u listu
 	if(this->glava!=nullptr)
 	{
-		Layer* trenutni = this->glava;
-		Layer* sledeci;
+		 Layer* trenutni=this->glava;
+	     Layer* sledeci;
 		while (this->glava->getNext() != nullptr) 
 		{
 			sledeci = trenutni->getNext();
@@ -103,8 +107,11 @@ bool ImageEditor::loadImage(unsigned char* image)
 	  else
 	{ 
 		Layer* ptr1 = new Layer();
-		ptr1->setLayer(this->matrix);
+		ptr1->setLayer(matrix);
 		this->glava=ptr1;
+		this->active = ptr1;
+		ptr1 = nullptr;
+		delete ptr1;
 	}
 	
 	return true;
@@ -129,32 +136,37 @@ int ImageEditor::fillBlanks(int i,unsigned char* image)//OVO MOZE DA JEBE STVAR!
 	return i;
 }
 
+void ImageEditor::packTheRest(Layer* glava, int i, unsigned char* image)
+{
+
+}
+
 
 	//saveImage
 	unsigned char* ImageEditor::saveImage()
 	{   
 		
-		unsigned int size = 8 + this->width * this->height;//format,visina,sirina,i broj piksela
-		unsigned int k = 2;
-		if (this->isNamed) { k += 2 + this->ImageName.length(); }
-		//
+		unsigned int size = 10 + this->width * this->height;//format,visina,sirina,i broj piksela
+		unsigned int k = 0;
+		if (this->isNamed) { k += 2 + this->ImageName.length()+ 4-(( 4 + this->ImageName.length())%4) ; }
+		else { k = 2; }
 		size += k;
 		unsigned char* image = new unsigned char[size];
 
 		image[0] = 'B';
 		image[1] = 'M';
-		int sp = 2;
+		int sp = 2;//sp mi prati prvu ne popunjenu poziciju ujedno i broj elemenata niza jer indeks prvog ne popunjenog duzina samog niza
 		if (this->isNamed)
 		{
-			image[2] = '=';
-			for (int i = 3; i < 3 + k; i++)
+			image[sp] = '='; sp++;
+			for (unsigned int i = 3; i < 3 + k; i++)
 			{
 				sp++;
 				image[i] = this->ImageName[i];
 			}
-			image[3 + k] = '='; k += 4; sp++;//sp mi prati poslednji popunjeni indeks
+			image[sp] = '='; sp++; k += 4; //sp mi prati poslednji popunjeni indeks
 		}
-		sp++;//prvi ne popunjeni
+		
 		sp=fillBlanks(sp, image);
 		
 		//sada treba popuniti visinu i sirinu
@@ -170,19 +182,39 @@ int ImageEditor::fillBlanks(int i,unsigned char* image)//OVO MOZE DA JEBE STVAR!
 			h /= 256;
 			sp++;
 		}
+		sp += 4;
 		sp = fillBlanks(sp, image);
-	
-	
+	//sada treba sabrati sliku koju dobijam sabirajuci Layer-a
+    //to da se ne bi gomilao kod mogu da uradim tako sto napravim funkkciju koja to radi
+		packTheRest(this->glava,sp,image);
+
+
 		return image;
 	}
 
 
 //Manipulacija slikom
-/*void ImageEditor::addLayer()
+void ImageEditor::addLayer()
 {
+	Layer* ptr = new Layer();
+	Pixel*** currentMatrix=new Pixel**;
+	for (unsigned int i = 0; i < height; i++) 
+	{
+		currentMatrix[i] = new Pixel*;
+		for (unsigned int j = 0; j < width; j++)
+		{
+			currentMatrix[i][j] = new Pixel;
+			currentMatrix[i][j] = nullptr;
+
+		}
+	}
+	ptr->setActivity(true);
+	
+	//ovo mi treba neka funkcija koja mi vrati matricu na layer polje
+	
 }
 
-void ImageEditor::deleteLayer()
+/*void ImageEditor::deleteLayer()
 {
 }
 
