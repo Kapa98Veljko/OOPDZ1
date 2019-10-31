@@ -5,6 +5,10 @@ using namespace std;
 
 Layer::Layer()
 {
+	this->layer = nullptr;
+	this->next = nullptr;
+	this->activity = false;
+	this->layerOpacity = 100;
 }
 
 void Layer::setOpacity(int i)
@@ -37,9 +41,9 @@ Layer* Layer::getNext()
 	return this->next;
 }
 
-void Layer::setLayer(Pixel*** newMatrix)
+void Layer::setLayer(Pixel*** newLayer)
 {
-	this->layer = newMatrix;
+	this->layer = newLayer;
 }
 
 Pixel*** Layer::getLayer()

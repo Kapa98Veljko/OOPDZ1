@@ -3,14 +3,14 @@
 class Pixel {
 public:
 	Pixel();
-	void setRed(unsigned int R);
-	void setBlue(unsigned int B);
-	void setGreen(unsigned int G);
-	unsigned char getRed();
-	unsigned char getGreen();
-	unsigned char getBlue();
+	void setRed(unsigned int red);
+	void setBlue(unsigned int blue);
+	void setGreen(unsigned int green);
+	unsigned int getRed();
+	unsigned int getGreen();
+	unsigned int getBlue();
 private:
-	int r, g, b;
+	unsigned int  r, g, b;
 
 };
 #endif //_PIXEL_H

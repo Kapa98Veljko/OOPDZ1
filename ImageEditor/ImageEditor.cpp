@@ -69,29 +69,43 @@ bool ImageEditor::loadImage(unsigned char* image)
 	//sada bi trebalo da se doda odma u sloj i da se postavi na aktivan i da se podesi neka neprovidnost TO MOZDA I NE TREBA!!!!!!!! sloj
 	for (int i = height - 1; i > 0; i--)
 	{
-		original[i] = new Pixel*;
-		matrix[i] = new Pixel*;
+		this->original[i] = new Pixel*;
+		this->matrix[i] = new Pixel*;
 		for (unsigned int j = 0; j < width; j++)
 		{   //da li je potrebna dodatna konverzija
-			original[i][j] = new Pixel;
-			matrix[i][j] = new Pixel;
-			original[i][j]->setRed(image[this->sp]);
-			matrix[i][j]->setRed(image[this->sp++]);
-			original[i][j]->setGreen(image[this->sp]);
-			matrix[i][j]->setGreen(image[this->sp++]);
-			original[i][j]->setBlue(image[this->sp]);
-			matrix[i][j]->setBlue(image[this->sp++]);
+			this->original[i][j] = new Pixel;
+			this->matrix[i][j] = new Pixel;
+			this->original[i][j]->setRed(image[this->sp]);
+			this->matrix[i][j]->setRed(image[this->sp++]);
+			this->original[i][j]->setGreen(image[this->sp]);
+			this->matrix[i][j]->setGreen(image[this->sp++]);
+			this->original[i][j]->setBlue(image[this->sp]);
+			this->matrix[i][j]->setBlue(image[this->sp++]);
 		}
-		//treba da se prazna mesta ako postoje
+		//treba da se prekoce prazna mesta ako postoje
 		this->sp = FindPosition(this->sp);
 		
-	}//mislim da je ovo kraj treba proveriti sa nekim
+	}
 
 	//sad imam sve matrice ovu matrix treba ubaciti u listu
 	if(this->glava!=nullptr)
+	{
+		Layer* trenutni = this->glava;
+		Layer* sledeci;
+		while (this->glava->getNext() != nullptr) 
 		{
-
+			sledeci = trenutni->getNext();
+			delete trenutni;
+			trenutni = sledeci;
 		}
+		delete this->glava;
+	}
+	  else
+	{ 
+		Layer* ptr1 = new Layer();
+		ptr1->setLayer(this->matrix);
+		this->glava=ptr1;
+	}
 	
 	return true;
 }
@@ -105,7 +119,7 @@ unsigned int ImageEditor::FindPosition(unsigned int sp)
 	return sp;
 }
 
-int ImageEditor::fillBlanks(int i,unsigned char* image)
+int ImageEditor::fillBlanks(int i,unsigned char* image)//OVO MOZE DA JEBE STVAR!!!!!!!
 {
 	while (i % 4) 
 	{
@@ -120,10 +134,10 @@ int ImageEditor::fillBlanks(int i,unsigned char* image)
 	unsigned char* ImageEditor::saveImage()
 	{   
 		
-		int size = 8 + this->width * this->height;//format,visina,sirina,i broj piksela
-		int k = 2;
+		unsigned int size = 8 + this->width * this->height;//format,visina,sirina,i broj piksela
+		unsigned int k = 2;
 		if (this->isNamed) { k += 2 + this->ImageName.length(); }
-		k=;
+		//
 		size += k;
 		unsigned char* image = new unsigned char[size];
 

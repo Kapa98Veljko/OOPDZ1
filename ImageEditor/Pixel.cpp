@@ -8,32 +8,32 @@ Pixel::Pixel()
 
 }
 
-void Pixel::setRed(unsigned int R)
+void Pixel::setRed(unsigned int red)
 {
-	this->r = R;
+	this->r = red;
 }
 
-void Pixel::setBlue(unsigned int B)
+void Pixel::setBlue(unsigned int blue)
 {
-	this->b = B;
+	this->b = blue;
 }
 
-void Pixel::setGreen(unsigned int G)
+void Pixel::setGreen(unsigned int green)
 {
-	this->g = G;
+	this->g = green;
 }
 
-unsigned char Pixel::getRed()
+unsigned int Pixel::getRed()
 {
 	return this->r;
 }
 
-unsigned char Pixel::getGreen()
+unsigned int Pixel::getGreen()
 {
 	return this->g;
 }
 
-unsigned char Pixel::getBlue()
+unsigned int Pixel::getBlue()
 {
 	return this->b;
 }
