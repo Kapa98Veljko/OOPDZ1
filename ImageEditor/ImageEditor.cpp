@@ -18,10 +18,8 @@ ImageEditor::ImageEditor()
 	this->glava = nullptr;
 	this->original = nullptr;//ovde se cuva ucitana slike
 	this->active = nullptr;//cuvainformacije o aktivnom 
-	this->sledeci = nullptr;//za brisanje slike
-	this->prethodni = nullptr;//prati prethodni pre aktivnog
+	this->last = nullptr;
 }
-
 bool ImageEditor::loadImage(unsigned char* image)
 {
 	int size = 0;
@@ -70,11 +68,10 @@ bool ImageEditor::loadImage(unsigned char* image)
 	
 	Pixel*** matrix =new Pixel**;//trenutna kopija
 	
-	Layer*** actv, prethodni, sled;
 	for (int i = height - 1; i > 0; i--)
 	{
-		this->original[i] = new Pixel*;
-		matrix[i] = new Pixel*;
+		this->original[i] = new Pixel* [this->height];
+		matrix[i] = new Pixel*[this->height];
 		for (unsigned int j = 0; j < width; j++)
 		{   //da li je potrebna dodatna konverzija
 			this->original[i][j] = new Pixel;
@@ -102,7 +99,6 @@ bool ImageEditor::loadImage(unsigned char* image)
 			delete trenutni;
 			trenutni = sledeci;
 		}
-		delete this->glava;
 	}
 	  else
 	{ 
@@ -112,6 +108,7 @@ bool ImageEditor::loadImage(unsigned char* image)
 		this->active = ptr1;
 		ptr1 = nullptr;
 		delete ptr1;
+		this->active =this->last= this->glava;
 	}
 	
 	return true;
@@ -208,21 +205,35 @@ void ImageEditor::addLayer()
 
 		}
 	}
-	ptr->setActivity(true);
-	
-	//ovo mi treba neka funkcija koja mi vrati matricu na layer polje
-	
-}
+	ptr->setLayer(currentMatrix);
 
-/*void ImageEditor::deleteLayer()
+	//Nadovezivanje LinusTorvalds na kraj liste 
+	this->last ->setNext(ptr);
+	this->last = ptr;
+	this->active = ptr;
+	ptr = nullptr;
+	delete ptr;
+}
+ void ImageEditor::deleteLayer()
 {
+	 Layer* prethodni, sledeci;
+	 prethodni = this->glava;
+	 while (prethodni->getNext()!=this->active) 
+	 {
+		 prethodni = prethodni->getNext();
+	 }
 }
 
 void ImageEditor::selectLayer(int i)
 {
 }
 
-void ImageEditor::invertColors()
+void ImageEditor::setLayerOpacity(int i)
+{
+	this->active->setOpacity(i);
+}
+
+/*void ImageEditor::invertColors()
 {
 }
 

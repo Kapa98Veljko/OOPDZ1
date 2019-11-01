@@ -14,9 +14,9 @@ public:
 	unsigned char* saveImage();
 	//Slojevi slike
 	void addLayer();
-	//void deleteLayer();
-	//void selectLayer(int i);
-	//void setLayerOpacity(int);//STA ZNACI SAMO OVO INT U ZAGRADI!!!!!!!!!!!!!
+	void deleteLayer();
+	void selectLayer(int i);
+	void setLayerOpacity(int i);//STA ZNACI SAMO OVO INT U ZAGRADI!!!!!!!!!!!!!
 	//Manipulacijom slike
 	//void invertColors();
 	//void toGrayScale();
@@ -39,9 +39,9 @@ private:
 	Pixel*** original;
     int R, B, G;//boje za crtanje
 	Layer* glava;
-	Layer* active;//Za laksi pristup aktivnom
-	Layer* sledeci;
-	Layer* prethodni;
+	Layer* active;//Pamti  koji je aktivan
+	Layer* last;
+	
 
 
 };
