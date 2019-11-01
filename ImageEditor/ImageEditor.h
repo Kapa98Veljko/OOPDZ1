@@ -18,8 +18,8 @@ public:
 	void selectLayer(int i);
 	void setLayerOpacity(int i);//STA ZNACI SAMO OVO INT U ZAGRADI!!!!!!!!!!!!!
 	//Manipulacijom slike
-	//void invertColors();
-	//void toGrayScale();
+	void invertColors();
+	void toGrayScale();
 	//void blur(int size);
 	//void flipHorizontal();
 	//void flipVertical();

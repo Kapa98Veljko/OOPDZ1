@@ -14,6 +14,6 @@ private:
 	//ono sto mi je potrebno za listu
 	Pixel*** layer;//sloj
 	Layer* next;//pokazivac na sledeci
-	int layerOpacity;//providnost sloja
+	unsigned int layerOpacity;//providnost sloja
 };
 #endif //LAYER_H

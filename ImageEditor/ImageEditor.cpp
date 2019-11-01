@@ -24,6 +24,7 @@ bool ImageEditor::loadImage(unsigned char* image)
 {
 	int size = 0;
 	//PROVERENO
+	if (!image) { return false; }
 	//loading format
 	if (image[this->sp] == 'b' || image[this->sp] == 'B') {
 		this->ImageFormat[this->sp++] = 'B';
@@ -216,32 +217,119 @@ void ImageEditor::addLayer()
 }
  void ImageEditor::deleteLayer()
 {
-	 Layer* prethodni, sledeci;
-	 prethodni = this->glava;
-	 while (prethodni->getNext()!=this->active) 
+	 Layer* prethodni = this->glava;
+	 if (prethodni = this->active) 
 	 {
-		 prethodni = prethodni->getNext();
+		 std::cout << "<GRESKA!>Napravili ste gresku nije moguce izbrisati sloj sa ucitanom slikom!!!" << std::endl;
+	 }
+	 //ako nije uneta nijedna slika
+	 else if (this->glava==nullptr) 
+	 {
+		 std::cout<<"<GRESKA>Greska ne postoji ni jedan ucitani sloj!!!"<<std::endl;
+	 }
+	 else
+	 {
+		 while (prethodni->getNext() != nullptr && prethodni->getNext()!=this->active) 
+		 {
+			 prethodni = prethodni->getNext();
+		 }
+		 prethodni->setNext(this->active->getNext());
+		 delete this->active;
+		 this->active = prethodni;
 	 }
 }
 
-void ImageEditor::selectLayer(int i)
-{
+void ImageEditor::selectLayer( int i)
+{//pitati iliju da li i kako ide castovanje za float
+	Layer* trenutni=this->glava;
+	if (i < 0) 
+	{
+		std::cout<<"<GRESKA>Greska zadati sloj ne postoji"<<std::endl;
+	}
+	else if (i == 0) 
+	{
+		this->active = this->glava;
+	}
+	else
+	{
+		int k = 0;
+		while (k < i && trenutni->getNext() != nullptr)
+		{
+			trenutni = trenutni->getNext();
+			k++;
+		}
+		if (trenutni == nullptr)
+		{
+			std::cout << "<GRESKA>Greska prekoracili ste opseg!!!" << std::endl;
+		}
+		else 
+		{
+			this->active = trenutni;
+		}
+	
+	}
+	trenutni = nullptr;
+	delete trenutni;
 }
 
 void ImageEditor::setLayerOpacity(int i)
 {
-	this->active->setOpacity(i);
+	char c = 'N';
+	if (i < 0 || i>100)
+	{
+		std::cout << "Ovo sto cinite je nedozvoljeno jer broj ili nije u opsegu ili nije pozitivan!!" << std::endl;
+		bool wish = false;
+		std::cout << "Da li zelite da znate gde ste pogresili?Y/N" << std::endl;
+		
+		std::cin >> c;
+	}
+	else if (c== 'Y'||c=='y') 
+	
+	{
+		if (i < 0) { std::cout << "Broj je negativan!!!" << std::endl; }
+		else if (i > 100) { std::cout << "Broj je veci od 100!!!" << std::endl; }
+	}
+	else{
+		this->setLayerOpacity = i;
+	}
+//provera za to da li je ceo broj!!!!!!
 }
 
-/*void ImageEditor::invertColors()
+void ImageEditor::invertColors()
 {
+	Pixel*** trenutni = this->active->getLayer();
+	for (int i = 0; i < this->height; i++) 
+	{
+		for (int j = 0; j < this->width; j++) 
+		{
+			trenutni[i][j]->setRed(255-trenutni[i][j]->getRed());
+			trenutni[i][j]->setGreen(255 - trenutni[i][j]->getGreen());
+			trenutni[i][j]->setBlue(255 - trenutni[i][j]->getBlue());
+		}
+	}
+	trenutni = nullptr;
 }
 
 void ImageEditor::toGrayScale()
 {
+	Pixel*** trenutni = this->active->getLayer();
+	for (int i = 0; i < this->height; i++)
+	{
+		for (int j = 0; j < this->width; j++)
+		{
+			unsigned int togray= (unsigned int)(0.3*trenutni[i][j]->getRed())+ (unsigned int)(0.59*trenutni[i][j]->getGreen())+(unsigned int)(0.11*trenutni[i][j]->getBlue());
+			trenutni[i][j]->setRed(togray);
+			trenutni[i][j]->setGreen(togray);
+			trenutni[i][j]->setBlue(togray);
+		}
+	}
+	trenutni = nullptr;
+//Ne zelim da mi vise nekih nekom greskom probije opseg i da pokazuju na nesto zapravo
+//Vazno Iliji si prepravio da bude sa kasovanjem inacu baguje !!!
+	//
 }
 
-void ImageEditor::blur(int size)
+/*void ImageEditor::blur(int size)
 {
 }
 
