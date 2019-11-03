@@ -16,13 +16,39 @@ ImageEditor::ImageEditor()
 	this->B = 0;
 	this->G = 0;
 	this->glava = nullptr;
-	this->original = nullptr;//ovde se cuva ucitana slike
 	this->active = nullptr;//cuvainformacije o aktivnom 
 	this->last = nullptr;
 }
+ImageEditor::~ImageEditor()
+{
+	Layer* trenutni=new Layer;
+	Layer* prethodni=new Layer;
+	trenutni = this->glava;
+	while (trenutni->getNext() != nullptr) 
+	{
+		prethodni->setNext(trenutni);
+		for (int i = 0; this->height; i++)
+		{
+			for (int j = 0; j < this->width; j++)
+			{
+				delete prethodni->getLayer()[i][j];
+
+			}
+			delete[] prethodni->getLayer()[i];
+		}
+		delete[] prethodni->getLayer();
+		prethodni=trenutni;
+		trenutni = trenutni->getNext();
+	}
+	delete trenutni;
+	delete prethodni;
+
+	trenutni = nullptr;
+	prethodni = nullptr;
+}
 bool ImageEditor::loadImage(unsigned char* image)
 {
-	int size = 0;
+
 	//PROVERENO
 	if (!image) { return false; }
 	//loading format
@@ -67,21 +93,21 @@ bool ImageEditor::loadImage(unsigned char* image)
 	
 	this->sp = FindPosition(this->sp);
 	
-	Pixel*** matrix =new Pixel**;//trenutna kopija
+	Pixel*** matrix =new Pixel**[this->height];//trenutna kopija
 	
 	for (int i = height - 1; i > 0; i--)
 	{
-		this->original[i] = new Pixel* [this->height];
-		matrix[i] = new Pixel*[this->height];
+	
+		matrix[i] = new Pixel*[this->width];
 		for (unsigned int j = 0; j < width; j++)
 		{   //da li je potrebna dodatna konverzija
-			this->original[i][j] = new Pixel;
-			matrix[i][j] = new Pixel;
-			this->original[i][j]->setRed(image[this->sp]);
+			
+		
+			matrix[i][j] = new Pixel();
 			matrix[i][j]->setRed(image[this->sp++]);
-			this->original[i][j]->setGreen(image[this->sp]);
+			
 			matrix[i][j]->setGreen(image[this->sp++]);
-			this->original[i][j]->setBlue(image[this->sp]);
+			
 			matrix[i][j]->setBlue(image[this->sp++]);
 		}
 		//treba da se prekoce prazna mesta ako postoje
@@ -190,6 +216,19 @@ void ImageEditor::packTheRest(Layer* glava, int i, unsigned char* image)
 		return image;
 	}
 
+	void ImageEditor::freeMatrixfromLayer(Pixel*** matrix)
+	{
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				delete matrix[i][j];
+			}
+			delete[] matrix[i];
+		}
+		delete[] matrix;
+	}
+
 
 //Manipulacija slikom
 void ImageEditor::addLayer()
@@ -201,15 +240,12 @@ void ImageEditor::addLayer()
 		currentMatrix[i] = new Pixel*;
 		for (unsigned int j = 0; j < width; j++)
 		{
-			currentMatrix[i][j] = new Pixel;
 			currentMatrix[i][j] = nullptr;
-
 		}
 	}
 	ptr->setLayer(currentMatrix);
 
-	//Nadovezivanje LinusTorvalds na kraj liste 
-	this->last ->setNext(ptr);
+	//Nadovezivanje LinusTorvalds na kraj liste
 	this->last = ptr;
 	this->active = ptr;
 	ptr = nullptr;
@@ -228,12 +264,14 @@ void ImageEditor::addLayer()
 		 std::cout<<"<GRESKA>Greska ne postoji ni jedan ucitani sloj!!!"<<std::endl;
 	 }
 	 else
-	 {
+	 {    //ili dok ne dodje do kraja liste ili dok ne dodje iza aktivnog koji nije ucitana slika
 		 while (prethodni->getNext() != nullptr && prethodni->getNext()!=this->active) 
 		 {
 			 prethodni = prethodni->getNext();
 		 }
+
 		 prethodni->setNext(this->active->getNext());
+		 freeMatrixfromLayer(this->active->getLayer());
 		 delete this->active;
 		 this->active = prethodni;
 	 }
@@ -290,9 +328,38 @@ void ImageEditor::setLayerOpacity(int i)
 		else if (i > 100) { std::cout << "Broj je veci od 100!!!" << std::endl; }
 	}
 	else{
-		this->setLayerOpacity = i;
+		this->active->setOpacity(i);
 	}
 //provera za to da li je ceo broj!!!!!!
+}
+
+
+
+unsigned int ImageEditor::findAverage(int i,int j,int size)
+{
+	unsigned int prosek;
+	int k = 0;
+
+
+
+	return prosek;
+}
+
+Pixel*** ImageEditor::makeCopy(int visina,int sirina)
+{
+	Pixel*** copy = new Pixel * *[visina];
+	for (int i = 0; i < visina; i++)
+	{
+		copy[i] = new Pixel * [sirina];
+		for (int j = 0; j < sirina; j++)
+		{
+			copy[i][j] = nullptr;
+			
+		}
+		
+	}
+	
+	return copy;
 }
 
 void ImageEditor::invertColors()
@@ -324,56 +391,203 @@ void ImageEditor::toGrayScale()
 		}
 	}
 	trenutni = nullptr;
-//Ne zelim da mi vise nekih nekom greskom probije opseg i da pokazuju na nesto zapravo
-//Vazno Iliji si prepravio da bude sa kasovanjem inacu baguje !!!
-	//
+	delete trenutni;
+  //Ne zelim da mi vise nekih nekom greskom probije opseg i da pokazuju na nesto zapravo
+  //Vazno Iliji si prepravio da bude sa kasovanjem inacu baguje !!!
 }
 
-/*void ImageEditor::blur(int size)
+void ImageEditor::blur(int size)
 {
+	int visina = 2 * size + 1;
+	int sirina = 2 * size + 1;
+	Pixel*** matrix = makeCopy(height,width);
+	
+	for (unsigned int i = 0; i < height; i++) 
+	{
+		for (unsigned int j = 0; j < width; j++) 
+		{   
+			unsigned int average = findAverage(i,j,size);
+			matrix[i][j]->setRed(average);
+			unsigned int average = findAverage(i,j,size);
+			matrix[i][j]->setGreen(average);
+			unsigned int average = findAverage(i, j, size);
+			matrix[i][j]->setBlue(average);
+		}
+	}
 }
 
 void ImageEditor::flipHorizontal()
 {
+	Pixel*** trenutni = new Pixel**;
+	Pixel*** copy = makeCopy(height,width);
+	
+	trenutni= this->active->getLayer();
+	for (int i = 0; i < this->height; i++) 
+	{
+		int k = this->width - 1;
+		for (int j = 0; j < width; j++) 
+		{
+			copy[i][k]->setBlue(trenutni[i][j]->getBlue());
+			copy[i][k]->setBlue(trenutni[i][j]->getBlue());
+			copy[i][k--]->setBlue(trenutni[i][j]->getBlue());
+
+		}
+	}
+	this->active->setLayer(copy);
+	//izbrisati trenutni 
+	freeMatrixfromLayer(trenutni);
+
 }
 
 void ImageEditor::flipVertical()
 {
+	Pixel*** trenutni = new Pixel**;
+	Pixel*** copy = makeCopy(height,width);
+
+	trenutni = this->active->getLayer();
+	int k = this->height - 1;
+	for (unsigned int i= 0; i<this->height; i++) 
+	{
+		for (unsigned int j = 0; j < this->width; j++)
+		{
+			copy[i][j]->setBlue(trenutni[i][k]->getBlue());
+			copy[i][j]->setRed(trenutni[i][k]->getRed());
+			copy[i][j]->setGreen(trenutni[i][k--]->getGreen());
+		}
+	}
+	this->active->setLayer(copy);
+	freeMatrixfromLayer(trenutni);
 }
 
 void ImageEditor::crop(int x, int y, int w, int h)
-{
-}*/
-//Crtanje po slici
-/*void ImageEditor::setActiveColor(string hex)
-{
-	bool isFormated = false;
-	if (hex[0] == '#') {
-		for (int i = 0; i < 8; i++)
-		{
-
-			if ((hex[i] >= '1' && hex[i] <= '10') || (hex[i] >= 'A' && hex[i] <= 'F'))
+{	//zavrsena 
+	if (x < 0 || y < 0 || w < 0 || h < 0||x>width||y>height|| ((h + y) > height)|| ((x + w) > width))
+	{
+		std::cout<<"<GESKA>Pogresno formatirano!!!"<<std::endl;
+	}
+	else {
+		int visina = h + y;
+		int sirina = w + x;
+		Layer* trenutni = glava;
+		while (trenutni->getNext() != nullptr) {
+			Pixel*** matrix = makeCopy(visina, sirina);
+			Pixel*** pom = trenutni->getLayer();
+			//sada je potrebno da se u novoj matrici dodaju odgovarajuce boje
+			for (unsigned int i = 0; i < visina; i++)
 			{
-				isFormated = true;
+				matrix[i] = new Pixel*[sirina];
+				for (unsigned int j = 0; j < sirina; j++)
+				{
+					matrix[i][j] = new Pixel(pom[i + y][j + x]->getRed(), pom[i + y][j + x]->getGreen(), pom[i + y][j + x]->getBlue());
+				}
 			}
-			else
-			{
-				isFormated = false;
-				//onemoguciti crtanje po slici i popravti kako treba da radi!!!
-			}
+			freeMatrixfromLayer(trenutni->getLayer());//brise staru
+			trenutni->setLayer(matrix);
+			trenutni = trenutni->getNext();
+			matrix = nullptr;
 		}
 
-
-		this->R = FindValue(hex[1], hex[2]);
-		this->B = FindValue(hex[3], hex[4]);
-		this->G = FindValue(hex[5], hex[6]);
+		//to je na kraju
+		width = w;
+		height = h;
+	}
+}
+//Crtanje po slici
+void ImageEditor::setActiveColor(string hex)
+{
+	bool format = true; int i = 1;
+	if (hex[0] != '#') { format = false; }
+	while (i < 7) 
+	{
+		if (hex[i] < 'a' || hex[i]> 'f' || hex[i] > 'F' || hex[i] < 'A') 
+		{
+			format =false;
+		}
+		i++;
+	}
+	if (format) 
+	{
+		for (int i = 1; i < 7; i++)
+		{
+			if (hex[i] == 'a') { hex[i] = 'A'; }
+			if (hex[i] == 'b') { hex[i] = 'B'; }
+			if (hex[i] == 'c') { hex[i] = 'C'; }
+			if (hex[i] == 'd') { hex[i] = 'D'; }
+			if (hex[i] == 'e') { hex[i] = 'E'; }
+			if (hex[i] == 'f') { hex[i] = 'F'; }
+		
+		}
+		this->R = fromHextoDecimal(hex[1],hex[2]);
+		this->G= fromHextoDecimal(hex[3], hex[4]);
+		this->B = fromHextoDecimal(hex[5], hex[6]);
+	
 	}
 }
 
-void ImageEditor::fillRect(int x, int y, int w, int h)
+unsigned int ImageEditor::fromHextoDecimal(char a, char b)
 {
+	unsigned int boja = 0;
+	if (a >= 'A') { boja = 16 * (a - 'A' + 10); }
+	else (boja = 16 * (a - '0' + 10));
+	if (b >= 'A') { boja = (b - 'A' + 10); }
+	else (boja = (b - '0' + 10));
+	return boja;
+}
+
+void ImageEditor::fillRect(int x, int y, int w, int h)
+{//(x,y) koordianata gornjeg levog ugla
+ //(w,h) sirina i visina pravougaonika ako izlazi van opsega onda samo do kraja matrice
+ //prvo cu da preracunam visinu i sirinu i treba ispitati da li je pokazivac nullptr jer NE treba sve na pocetku postavlajti na 0,0,0
+	int visina = y+x;
+	int sirina = w+h;
+	//DA LI MI OVDE TREBA DA SE DODELI MEMORIJA JA MISLIM DA NE!!!!
+	Pixel*** matrica;
+	matrica = this->active->getLayer();
+
+	
+	if (visina > this->height) 
+	{
+		visina = this->height;
+	}
+	if (sirina > this->width) 
+	{
+		sirina = this->width;
+	}
+	for (int i = y; i < visina; i++) 
+	{
+		for (int j = x; j < sirina; j++) 
+		{
+			if (matrica[i][j] == nullptr) 
+			{
+				matrica[i][j] = new Pixel(this->R,this->G,this->B);
+			}
+		}
+	}
+
+	//DA LI JE OVO POTREBNO DA SE UNISTI!!!!! I NA KOJI NACIN SE TO RADI
 }
 
 void ImageEditor::eraseRect(int x, int y, int w, int h)
 {
-}*/
+	Pixel*** matrica=active->getLayer();
+	int visina = y + h;
+	int sirina = x + w;
+
+	if (visina > height) 
+	{
+		visina = height;
+	}
+	if (sirina > width) 
+	{
+		sirina = width;
+	}
+
+	for (unsigned int i = y; i < visina; i++) 
+	{
+		for (unsigned int j = h; j < sirina; j++) 
+		{
+			delete matrica[i][j];
+			matrica[i][j] = nullptr;
+		}
+	}
+}

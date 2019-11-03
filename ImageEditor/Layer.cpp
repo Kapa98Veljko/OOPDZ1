@@ -7,7 +7,20 @@ Layer::Layer()
 {
 	this->layer = nullptr;
 	this->next = nullptr;
-	this->layerOpacity = 100;
+	this->layerOpacity = 0;
+	this->sirina = 0;
+}
+Layer::~Layer()
+{
+	
+	for (int i = 0; i < this->visina; i++) {
+		for (int j = 0; j < this->sirina; j++) {
+			delete this->layer[i][j];
+		}
+		delete[] this->layer[i];
+	}
+	delete[] this->layer;//brise ceo niz na koji pokazuje layer 
+	layer = nullptr;
 }
 //Samo za aktivni sloj slike magarce
 void Layer::setOpacity(int i)
@@ -41,6 +54,16 @@ void Layer::setLayer(Pixel*** newLayer)
 
 Pixel*** Layer::getLayer()
 {
-	return this->layer;
+	return layer;
+}
+
+void Layer::setSirina(int i)
+{
+	this->visina = i;
+}
+
+void Layer::setVisina(int i)
+{
+	this->sirina = i;
 }
 
